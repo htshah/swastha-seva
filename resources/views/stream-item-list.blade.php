@@ -72,7 +72,7 @@
                 $.ajax({
                     url:"/api/blockchain/stream/view/demo4",
                     type:"POST",
-                    data:$("#filter-form").serializeArray(),
+                    data:$("#filters-form").serializeArray(),
                     success:function(data){
                         console.log(data);
                         var template = $("#data-list-template").html();
@@ -121,10 +121,13 @@
                 }
             }, 1000); */
             
+            var markers = [];
             function placeMarkers(){
-                var count = 0;
+                $.each(markers,function(i,marker){
+                    marker.remove();
+                });
+                markers = [];
                 $('.data-list-collection li').each(function(){
-                    count++;
                     var data = $.parseJSON($(this).find('p').html());
                     var address = data.pincode;
                     
@@ -138,15 +141,14 @@
                         var lat = data.results[0].geometry.location.lat;
                         var lng = data.results[0].geometry.location.lng;
 
-                        new mapboxgl.Marker()
+                        markers.push(new mapboxgl.Marker()
                             .setLngLat([lng, lat])
-                            .addTo(map);
+                            .addTo(map));
                     });
 
                     
                 });
 
-                console.log('Count: '+count);
             }
         </script>
 @endsection

@@ -15,7 +15,7 @@
                 <div class="col s1 no-padding-left input-field">Filters</div>
                 <div class="col s2 input-field small-margin">
                     <select class="browser-default" id="state" name="state">
-                        <option value="*" selected>All state</option>
+                        <option value="*" selected>Any state</option>
                         @foreach (\App\Address::select('state')->distinct()->get() as $state)
                             @php
                                 $state = $state['state'];
@@ -26,7 +26,7 @@
                 </div>
                 <div class="col s2 input-field small-margin">
                     <select class="browser-default" id="city" name="city">
-                        <option value="*" selected>All Cities</option>
+                        <option value="*" selected>Any Cities</option>
                     </select>
                 </div>
 
@@ -37,14 +37,14 @@
 
                 <div class="col s2 input-field small-margin">
                     <select class="browser-default" id="gender" name="gender">
-                        <option selected disabled>Gender</option>
+                        <option value="*" selected>Any Gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
                     </select>
                 </div>
                 <div class="col s2 input-field small-margin">
                     <select class="browser-default" id="disease" name="disease">
-                        <option selected disabled>Disease</option>
+                        <option value="*" selected>Any Disease</option>
                         <option value="cancer">Cancer</option>
                         <option value="aids">AIDS</option>
                         <option value="malaria">Malaria</option>

@@ -2,11 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Faker\Factory as Faker;
 use Illuminate\Http\Request;
 use \App\Extensions\ExtendedMultichainClient;
-
-use Faker\Factory as Faker;
-
 
 class BlockChainController extends Controller
 {
@@ -48,7 +46,8 @@ class BlockChainController extends Controller
         ];
     }
 
-    public function grantPermissions(Request $request,$permissions){
+    public function grantPermissions(Request $request, $permissions)
+    {
 
         $this->multichain->grant(
             $request->session()->get('uid'),
@@ -94,33 +93,54 @@ class BlockChainController extends Controller
         ];
     }
 
-    public function viewStreamItems(Request $request,$stream){
-        $items = $this->multichain->listStreamItems($stream,30);
+    public function viewStreamItems(Request $request, $stream)
+    {
+        $items = $this->multichain->listStreamItems($stream, 30);
+        $filter = [
+            'state' => $request->input('state'),
+            'city' => $request->input('city'),
+            'pincode' => $request->input('pincode'),
+            'gender' => $request->input('gender'),
+            'disease' => $request->input('disease'),
+        ];
+        foreach ($filter as $rule => $val) {
+            if ($val == '*' || empty($val)) {
+                unset($filter[$rule]);
+            }
+        }
+        $filterCount = count($filter);
         //Convert hex data to text form
-        foreach($items as $i=>$item){
+        $finalArr = [];
+        foreach ($items as $i => $item) {
             $items[$i]['data_text'] = hex2bin($item['data']);
-            $data = json_decode($items[$i]['data_text'],true);
+            $data = json_decode($items[$i]['data_text'], true);
             $items[$i]['publishers'] = $item['publishers'][0];
+
+            $arr = array_intersect_assoc($data, $filter);
+            if (count($arr) == $filterCount) {
+                $finalArr[] = $items[$i];
+            }
         }
         return [
-            'stream_items' => $items,
+            'stream_items' => $finalArr,
         ];
     }
 
-    public function fakeStream(Request $request,$stream){
+    public function fakeStream(Request $request, $stream)
+    {
         $faker = Faker::create('en_IN');
         $key = $request->session()->get('uid');
         $from = $key;
 
-        $disease = ['cancer','aids','malaria'];
-        $gender = ['male','female'];
-        for($i=0;$i<100;$i++){
+        $disease = ['cancer', 'aids', 'malaria'];
+        $gender = ['male', 'female'];
+        for ($i = 0; $i < 100; $i++) {
             $data = json_encode([
-                'disease'=>$disease[array_rand($disease)],
-                'gender'=>$gender[array_rand($gender)],
-                'pincode'=>mt_rand(400001,400096),
-                'city'=>'Mumbai',
-                'state'=>'Maharashtra',
+                'disease' => $disease[array_rand($disease)],
+                'gender' => $gender[array_rand($gender)],
+                'pincode' => mt_rand(400001, 400096),
+                'city' => 'Mumbai',
+                'state' => 'Maharashtra',
             ]);
 
             $this->multichain->publishFrom($from, $stream, $key, $data);
